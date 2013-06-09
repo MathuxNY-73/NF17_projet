@@ -6,9 +6,8 @@ CREATE TABLE Ville (
 	PRIMARY KEY (nom_ville,CP)
 );
 CREATE TYPE typev AS ENUM ('Avenue','Rue','Impasse','Boulevard');
-CREATE SEQUENCE IdPers START 1;
 CREATE TABLE Personne (
-	Id INTEGER,
+	Id SERIAL,
 	Nom VARCHAR(20),
 	Prenom VARCHAR(20),
 	Rum_tel VARCHAR(20),
@@ -51,7 +50,7 @@ CREATE TABLE SalarieGare (
 );
 CREATE TYPE typei AS ENUM('Hotel','Agence de taxis');
 CREATE TABLE Point_Interet(
-	Num INTEGER PRIMARY KEY,
+	Num SERIAL PRIMARY KEY,
 	Nom TEXT,
 	Ville VARCHAR(20) NOT NULL,
 	Rue TEXT,
@@ -76,11 +75,11 @@ CREATE TABLE Type_Train(
 	Vitesse_Max INTEGER NOT NULL
 );
 CREATE TABLE Train(
-	Num_Train INTEGER PRIMARY KEY,
+	Num_Train SERIAL PRIMARY KEY,
 	Type VARCHAR(5) NOT NULL REFERENCES Type_Train(Nom_Type) 
 );
 CREATE TABLE Trajet(
-	Num INTEGER PRIMARY KEY,
+	Num SERIAL PRIMARY KEY,
 	Gare_Depart VARCHAR(20) NOT NULL,
 	Ville_Depart VARCHAR(20) NOT NULL,
 	CP_Depart VARCHAR(7) NOT NULL,
@@ -104,7 +103,7 @@ CREATE TABLE Gare_Intermediaire(
 );
 CREATE TYPE payem AS ENUM('Espece','Cheque','Carte de Credit');
 CREATE TABLE Billet(
-	Num INTEGER PRIMARY KEY,
+	Num SERIAL PRIMARY KEY,
 	Ville_Depart VARCHAR(20) NOT NULL,
 	CP_Depart VARCHAR(7) NOT NULL,
 	Ville_Arrivee VARCHAR(20) NOT NULL,
@@ -123,7 +122,7 @@ CREATE TABLE Billet_Trajet(
 	PRIMARY KEY(Num_Billet,Num_Trajet)
 );
 CREATE TABLE Place_Voyageur(
-	Num_Place INTEGER,
+	Num_Place SERIAL, --PROBLEME A RESOUDRE!!!
 	Num_Trajet INTEGER REFERENCES Trajet(Num),
 	Num_Billet INTEGER NOT NULL REFERENCES Billet(Num),
 	PRIMARY KEY (Num_Place,Num_Trajet)

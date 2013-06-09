@@ -17,7 +17,6 @@ DROP TABLE Salarie;
 DROP TYPE typet;
 DROP TYPE typep;
 DROP TABLE Personne;
-DROP SEQUENCE IdPers;
 DROP TYPE typev;
 DROP TABLE Ville;
 DROP VIEW vSalarie;
