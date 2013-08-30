@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>	
+<head>
+	<title>Creation compte client</title>
+	<meta charset="utf-8" />
+</head>
+<body>
+	
+	<h1><center><u>Création d'un nouveau compte client</c></u></h1>
+	
+	Veuillez entrer vos informations:
+	<TABLE border=0>
+	<form method="POST" action="insert_client.php">
+		<TR><TD>Nom :</TD> <TD><input type="text" name="Nom"/></TD></TR>
+		<TR><TD>Prenom :</TD> <TD><input type="text" name="Prenom"/></TD></TR>
+		<TR><TD>Telephone :</TD> <TD><input type="text" name="Tel"/></TD></TR>
+		<TR><TD>Adresse :</TD> <TD><input type="text" name="Rue"/></TD></TR>
+		<TR><TD>Code postal :</TD> <TD><input type="text" name="CP"/></TD></TR>
+		<TR><TD>Ville :</TD> <TD><input type="text" name="Ville"/></TD></TR>
+	</TABLE>
+	<br>
+	Choisissez un login et un mot de passe qui vous permettrons de vous connecter sur notre site:
+	<TABLE border=0>
+		<TR><TD>Login :</TD> <TD><input type="text" name="Login"/></TD></TR>
+		<TR><TD>Mot de passe :</TD> <TD><input type="password" name="Mdp"/></TD></TR>
+		<TR><TD></TD><TD><input type="submit"/></TD></TR>
+	</form>
+	</TABLE>
+
+	<a href="accueil_client.php">Retour page précédente</a>
+	
+</body>
+</html>

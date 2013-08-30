@@ -1,65 +1,73 @@
 BEGIN TRANSACTION;
+
 CREATE TABLE Ville (
 	Nom VARCHAR(20),
 	CP VARCHAR(7), 
-	Zone_h TIME WITH TIME ZONE, 
-	PRIMARY KEY (nom_ville,CP)
+	Zone_h INTEGER, 
+	PRIMARY KEY (Nom,CP)
 );
-CREATE TYPE typev AS ENUM ('Avenue','Rue','Impasse','Boulevard');
+
 CREATE TABLE Personne (
-	Id SERIAL,
-	Nom VARCHAR(20),
-	Prenom VARCHAR(20),
-	Rum_tel VARCHAR(20),
+	Id SERIAL PRIMARY KEY,
+	Nom VARCHAR(20) NOT NULL,
+	Prenom VARCHAR(20) NOT NULL,
+	Num_tel VARCHAR(20) NOT NULL,
 	Rue TEXT,
 	CP VARCHAR(7),
-	Num_Rue INTEGER,
-	Type_Rue typev,
 	Ville VARCHAR(20),
 	FOREIGN KEY (Ville, CP) REFERENCES Ville(Nom, CP),
-	PRIMARY KEY(Id),
-	CONSTRAINT numtel_check CHECK (Num_tel ~ '^[0-9]{10,}$'::text));
+	UNIQUE (Nom, Prenom, Num_tel)
+);
+	
 CREATE TYPE typep AS ENUM ('Salarie','Aiguilleur','Guichetier','AiguilleurGuichetier');
+
 CREATE TYPE typet AS ENUM ('Temps plein','Temps partiel');
+
 CREATE TABLE Salarie (
 	Id INTEGER PRIMARY KEY REFERENCES Personne(Id) ON DELETE CASCADE,
 	Num_secu INTEGER UNIQUE NOT NULL,
 	Duree_travail typet,
-	Type typep
-	);
-CREATE TABLE Voyageur (
-	Id INTEGER PRIMARY KEY REFERENCES Personne(Id) ON DELETE CASCADE
+	Types typep
 );
+
+CREATE TABLE Voyageur (
+	Id INTEGER PRIMARY KEY REFERENCES Personne(Id) ON DELETE CASCADE,
+	Login VARCHAR(20) UNIQUE,
+	Mdp VARCHAR(20)
+);
+
 CREATE TABLE Gare (
 	Nom VARCHAR(20),
-	Ville VARCHAR(20),
-	CP VARCHAR(7),
 	Rue TEXT,
-	Num_Rue INTEGER,
-	Type_Voie typev,
+	CP VARCHAR(7),
+	Ville VARCHAR(20),
 	Tps_Plein_Min INTEGER,
+	Num SERIAL UNIQUE NOT NULL,
 	FOREIGN KEY(Ville,CP) REFERENCES Ville(Nom,CP) ON UPDATE CASCADE ON DELETE CASCADE,
-	PRIMARY KEY(Nom,Ville,CP));
-CREATE TABLE SalarieGare (
+	PRIMARY KEY(Nom,Ville,CP)
+);
+
+CREATE TABLE Salarie_Gare (
 	Id INTEGER REFERENCES Salarie(Id) ON DELETE CASCADE,
 	Nom VARCHAR(15),
-	Ville VARCHAR(20),
 	CP VARCHAR(7),
+	Ville VARCHAR(20),
 	FOREIGN KEY (Nom,Ville,CP) REFERENCES Gare(Nom,Ville,CP) ON UPDATE CASCADE ON DELETE CASCADE,
 	PRIMARY KEY(Id,Nom,Ville,CP)
 );
+
 CREATE TYPE typei AS ENUM('Hotel','Agence de taxis');
+
 CREATE TABLE Point_Interet(
 	Num SERIAL PRIMARY KEY,
 	Nom TEXT,
-	Ville VARCHAR(20) NOT NULL,
 	Rue TEXT,
 	CP VARCHAR(7) NOT NULL,
-	Num_Rue INTEGER,
-	Type_Rue typev,
+	Ville VARCHAR(20) NOT NULL,
 	Type_Interet typei,
 	FOREIGN KEY(Ville,CP) REFERENCES ville(Nom,CP) ON UPDATE CASCADE ON DELETE CASCADE
 );
+
 CREATE TABLE Gare_Interet(
 	Num_Interet INTEGER REFERENCES Point_Interet(Num) ON DELETE CASCADE,
 	Gare VARCHAR(20) NOT NULL,
@@ -68,16 +76,19 @@ CREATE TABLE Gare_Interet(
 	FOREIGN KEY (Gare,VilleGare,CPGare) REFERENCES Gare(Nom,Ville,CP) ON UPDATE CASCADE ON DELETE CASCADE,
 	PRIMARY KEY(Num_Interet,Gare,VilleGare,CPGare)
 );
+
 CREATE TABLE Type_Train(
-	Nom_Type VARCHAR(5) PRIMARY KEY,
+	Nom_Type VARCHAR(20) PRIMARY KEY,
 	Nb_Prem INTEGER NOT NULL,
 	Nb_Scnd INTEGER NOT NULL,
 	Vitesse_Max INTEGER NOT NULL
 );
+
 CREATE TABLE Train(
-	Num_Train SERIAL PRIMARY KEY,
-	Type VARCHAR(5) NOT NULL REFERENCES Type_Train(Nom_Type) 
+	Num SERIAL PRIMARY KEY,
+	Typet VARCHAR(5) NOT NULL REFERENCES Type_Train(Nom_Type) 
 );
+
 CREATE TABLE Trajet(
 	Num SERIAL PRIMARY KEY,
 	Gare_Depart VARCHAR(20) NOT NULL,
@@ -89,9 +100,13 @@ CREATE TABLE Trajet(
 	Date_Depart TIMESTAMP,
 	Date_Arrivee TIMESTAMP,
 	Num_Train INTEGER NOT NULL REFERENCES Train(Num),
+	Prix1 REAL,
+	Prix2 REAL,
 	FOREIGN KEY (Gare_Depart,Ville_Depart,CP_Depart) REFERENCES Gare(Nom,Ville,CP) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY (Gare_Arrivee,Ville_Arrivee,CP_Arrivee) REFERENCES Gare(Nom,Ville,CP) ON UPDATE CASCADE ON DELETE CASCADE
 );
+
+/*
 CREATE TABLE Gare_Intermediaire(
 	Num_Trajet INTEGER NOT NULL REFERENCES Trajet(Num) ON DELETE CASCADE,
 	Gare_Arrivee VARCHAR(20) NOT NULL,
@@ -101,45 +116,71 @@ CREATE TABLE Gare_Intermediaire(
 	FOREIGN KEY (Gare_Arrivee,Ville_Arrivee,CP_Arrivee) REFERENCES Gare(Nom,Ville,CP) ON UPDATE CASCADE ON DELETE CASCADE,
 	PRIMARY KEY (Num_Trajet,Gare_Arrivee,Ville_Arrivee,CP_Arrivee)
 );
+*/
+
 CREATE TYPE payem AS ENUM('Espece','Cheque','Carte de Credit');
+
 CREATE TABLE Billet(
-	Num SERIAL PRIMARY KEY,
-	Ville_Depart VARCHAR(20) NOT NULL,
-	CP_Depart VARCHAR(7) NOT NULL,
-	Ville_Arrivee VARCHAR(20) NOT NULL,
-	CP_Arrivee VARCHAR(7) NOT NULL,
+	Num INTEGER,
+	--Ville_Depart VARCHAR(20) NOT NULL,
+	--CP_Depart VARCHAR(7) NOT NULL,
+	--Ville_Arrivee VARCHAR(20) NOT NULL,
+	--CP_Arrivee VARCHAR(7) NOT NULL,
 	Prix REAL,
 	Moyen_Paiement payem,
 	Internet BOOLEAN,
 	Assurance BOOLEAN,
 	Voyageur INTEGER NOT NULL REFERENCES Voyageur(Id),
-	FOREIGN KEY (Ville_Depart,CP_Depart) REFERENCES Ville(Nom,CP) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY (Ville_Arrivee,CP_Arrivee) REFERENCES Ville(Nom,CP) ON UPDATE CASCADE ON DELETE CASCADE
+	Num_Trajet INTEGER REFERENCES Trajet(Num) ON UPDATE CASCADE ON DELETE CASCADE,
+	Classe INTEGER,
+	PRIMARY KEY (Num, Num_Trajet)
+	--FOREIGN KEY (Ville_Depart,CP_Depart) REFERENCES Ville(Nom,CP) ON UPDATE CASCADE ON DELETE CASCADE,
+	--FOREIGN KEY (Ville_Arrivee,CP_Arrivee) REFERENCES Ville(Nom,CP) ON UPDATE CASCADE ON DELETE CASCADE
 );
+
+/*
 CREATE TABLE Billet_Trajet(
 	Num_Billet INTEGER NOT NULL REFERENCES Billet(Num) ON UPDATE CASCADE ON DELETE CASCADE,
 	Num_Trajet INTEGER NOT NULL REFERENCES Trajet(Num) ON UPDATE CASCADE ON DELETE CASCADE,
 	PRIMARY KEY(Num_Billet,Num_Trajet)
 );
+
 CREATE TABLE Place_Voyageur(
 	Num_Place SERIAL, --PROBLEME A RESOUDRE!!!
 	Num_Trajet INTEGER REFERENCES Trajet(Num),
 	Num_Billet INTEGER NOT NULL REFERENCES Billet(Num),
 	PRIMARY KEY (Num_Place,Num_Trajet)
 );
+*/
+
 CREATE VIEW vSalarie
-AS SELECT * FROM Personne P, Salarie S WHERE P.Id=S.Id;
+AS SELECT P.Id, P.Nom, P.Prenom, P.Num_tel, P.Rue, P.CP, P.Ville, S.Num_secu, S.Duree_travail, S.Types FROM projet.Personne P, projet.Salarie S WHERE P.Id=S.Id;
 
 CREATE VIEW vAiguilleur
-AS SELECT * FROM vSalarie WHERE Type=Aiguilleur OR Type=AiguilleurGuichetier;
+AS SELECT * FROM projet.vSalarie WHERE Types='Aiguilleur' OR Types='AiguilleurGuichetier';
 
 CREATE VIEW vGuichetier
-AS SELECT * FROM vSalarie WHERE Type=Guichetier OR Type=AiguilleurGuichetier;
+AS SELECT * FROM projet.vSalarie WHERE Types='Guichetier' OR Types='AiguilleurGuichetier';
 
 CREATE VIEW vAutreSalarie
-AS SELECT * FROM vSalarie WHERE Type=Salarie;
+AS SELECT * FROM projet.vSalarie WHERE Types='Salarie';
 
 CREATE VIEW vVoyageur
-AS SELECT * FROM Personne P, Voyageur V WHERE P.Id=V.Id;
+AS SELECT P.Id, P.Nom, P.Prenom, P.Num_tel, P.Rue, P.CP, P.Ville, V.Login, V.Mdp FROM projet.Personne P, projet.Voyageur V WHERE P.Id=V.Id;
 
+CREATE FUNCTION insert_ville() RETURNS trigger AS $insert_ville$
+BEGIN
+	IF NEW.ville NOT IN (SELECT Nom FROM projet.Ville) THEN
+		INSERT INTO projet.Ville VALUES (NEW.ville, NEW.CP, 0);
+	END IF;
+	RETURN NEW;
+END;
+$insert_ville$ LANGUAGE plpgsql;
+
+CREATE TRIGGER insert_ville BEFORE INSERT ON Personne
+	FOR EACH ROW EXECUTE PROCEDURE insert_ville();
+	
+CREATE TRIGGER update_ville BEFORE UPDATE ON Personne
+	FOR EACH ROW EXECUTE PROCEDURE insert_ville();
+	
 COMMIT;
